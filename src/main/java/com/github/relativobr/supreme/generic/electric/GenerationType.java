@@ -1,5 +1,6 @@
 package com.github.relativobr.supreme.generic.electric;
 
+import io.github.thebusybiscuit.slimefun4.libraries.dough.blocks.BlockPosition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.Material;
@@ -8,6 +9,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 @AllArgsConstructor
 public enum GenerationType {
@@ -55,15 +58,15 @@ public enum GenerationType {
         }
     },
     WIND("Wind") {
+        public final Map<BlockPosition, BlockFace> cachedFace = new HashMap<>();
+
         @Override
         protected int generate(@Nonnull World world, @Nonnull Block block, int def) {
             switch (world.getEnvironment()) {
                 case NETHER:
                 case NORMAL: {
-                    if (block.getRelative(BlockFace.NORTH).getType() == Material.AIR
-                            || block.getRelative(BlockFace.EAST).getType() == Material.AIR
-                            || block.getRelative(BlockFace.SOUTH).getType() == Material.AIR
-                            || block.getRelative(BlockFace.WEST).getType() == Material.AIR) {
+                    BlockPosition position = new BlockPosition(block);
+                    if ((cachedFace.containsKey(position) && block.getRelative(cachedFace.get(position)).getType() == Material.AIR) || checkRelative(block, BlockFace.NORTH) || checkRelative(block, BlockFace.EAST) || checkRelative(block, BlockFace.SOUTH) || checkRelative(block, BlockFace.WEST)) {
                         return def;
                     }
                     return 0;
@@ -72,6 +75,14 @@ public enum GenerationType {
                 default:
                     return 0;
             }
+        }
+
+        protected boolean checkRelative(Block block, BlockFace face) {
+            if (block.getRelative(face).getType() == Material.AIR) {
+                cachedFace.put(new BlockPosition(block), face);
+                return true;
+            }
+            return false;
         }
     },
     DARK("Dark") {
