@@ -393,6 +393,13 @@ public class TechGenerator extends SimpleItemContainerMachine implements Radioac
         if (mobTechType == MobTechType.ROBOTIC_ACCELERATION || mobTechType == MobTechType.MUTATION_BERSERK) {
           consumption = consumption + adjustEnergy;
         }
+      } else {
+          SlimefunItem slimefunItem = SlimefunItem.getByItem(input);
+          if (slimefunItem instanceof MobTech) {
+            PersistentDataAPI.setInt(itemMeta, tier, ((MobTech) slimefunItem).getMobTechTier());
+            PersistentDataAPI.setString(itemMeta, type, ((MobTech) slimefunItem).getMobTechType().name());
+            input.setItemMeta(itemMeta);
+          }
       }
     }
     return consumption;
